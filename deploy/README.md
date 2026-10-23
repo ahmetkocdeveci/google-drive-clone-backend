@@ -16,10 +16,12 @@ Compose backend'i `..`, frontend'i `../../google-drive-clone-frontend` bağlamı
 Backend kökünden yalnız şablon doğrulaması (servis başlatmaz):
 
 ```powershell
-docker compose --env-file deploy/.env.example -f deploy/compose.yaml config --no-env-resolution --quiet
+pnpm check:deploy
 ```
 
-Gerçek sunucu ve domain hazır olduğunda `deploy/` dizininde `.env.example` dosyasını `.env`, `.env.production.example` dosyasını `.env.production` olarak kopyalayıp kendi ayarlarını doldurun. Var olan dosyaların üzerine yazmayın. Sırlar Git'e girmez; gerçek dosyaları paylaşmayın. `.env.production` için backend yapılandırmasının üretim doğrulamaları uygulanır; boş örnekle uygulama başlatılamaz.
+Bu kontrol yalnız alt süreçte `DRIVE_API_ENV_FILE=.env.production.example` seçer; gerçek `.env.production` dosyasını okumaz/oluşturmaz ve çağıran terminalin ayarını değiştirmez. Docker PATH'te yoksa `DOCKER_BIN` ile yürütülebilir dosyanın yolunu belirtin.
+
+Gerçek sunucu ve domain hazır olduğunda `deploy/` dizininde `.env.example` dosyasını `.env`, `.env.production.example` dosyasını `.env.production` olarak kopyalayıp kendi ayarlarını doldurun. Var olan dosyaların üzerine yazmayın. Sırlar Git'e girmez; gerçek dosyaları paylaşmayın. Gerçek kurulumda `DRIVE_API_ENV_FILE` tanımlı değilken varsayılan `.env.production` kullanılır. Backend üretim doğrulamaları uygulanır; boş örnekle uygulama başlatılamaz.
 
 `deploy/` içinde `docker compose --env-file .env -f compose.yaml config --quiet` ile gerçek ayarları doğruladıktan sonra `up -d --build` kullanılır. HTTPS için domain DNS'i sunucuya yönelmeli ve 80/443 erişilebilir olmalıdır. Henüz alan adı/sunucu hazır olmadığı için bu başlatma yapılmadı.
 

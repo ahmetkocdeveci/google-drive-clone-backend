@@ -2,7 +2,7 @@ name: ortak-drive
 services:
   api:
     build: ..
-    env_file: .env.production
+    env_file: ${DRIVE_API_ENV_FILE:-.env.production}
     restart: unless-stopped
     read_only: true
     volumes: ['api-scratch:/tmp']

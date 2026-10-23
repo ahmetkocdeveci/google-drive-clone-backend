@@ -12,6 +12,7 @@
     "test:local": "node scripts/smoke-local.mjs",
     "test:load": "node scripts/load-local.mjs",
     "check": "node scripts/check.mjs",
+    "check:deploy": "node scripts/check-deploy.mjs",
     "worker": "node src/worker-entry.mjs",
     "backup": "node scripts/backup.mjs"
   },
