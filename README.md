@@ -88,4 +88,6 @@ Proxy arkasında `TRUSTED_PROXY_CIDRS` yalnız gerçek proxy IP/CIDR'lerini içe
 
 Güncel kalite incelemesi ve kalan işler: [eksik ve kalite raporu](docs/kalite-ve-eksikler-raporu.md). Mimari: [multi-tenant tasarım](docs/google-drive-multi-tenant-mimari.md).
 
+Üretim Compose/Caddy, örnek ortam ve izleme kaynakları bu depodaki [deploy rehberinde](deploy/README.md) bulunur. Frontend deposunu aynı üst dizine klonlayın. Bu dosyaların hazırlanması canlı kurulumun tamamlandığı anlamına gelmez.
+
 Temel kaynaklar: [Mongoose transactions](https://mongoosejs.com/docs/transactions.html), [Express güvenlik](https://expressjs.com/en/advanced/best-practice-security.html), [Google OpenID Connect](https://developers.google.com/identity/openid-connect/openid-connect).

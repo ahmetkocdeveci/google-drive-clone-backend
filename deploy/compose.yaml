@@ -1,0 +1,47 @@
+name: ortak-drive
+services:
+  api:
+    build: ..
+    env_file: .env.production
+    restart: unless-stopped
+    read_only: true
+    volumes: ['api-scratch:/tmp']
+    cap_drop: [ALL]
+    security_opt: ['no-new-privileges:true']
+    networks:
+      edge:
+        ipv4_address: 172.29.61.3
+    mem_limit: 1g
+    cpus: 2
+  frontend:
+    build: ../../google-drive-clone-frontend
+    restart: unless-stopped
+    read_only: true
+    tmpfs: ['/tmp:size=64m,mode=1777']
+    cap_drop: [ALL]
+    security_opt: ['no-new-privileges:true']
+    networks: [edge]
+    mem_limit: 512m
+    cpus: 1
+  gateway:
+    image: caddy:2.11.7-alpine@sha256:d8542f48d34a9cf4e4c11a478865229840e87e4c96ea3f439101f31a5d35f75f
+    environment:
+      DRIVE_DOMAIN: ${DRIVE_DOMAIN:?Set DRIVE_DOMAIN in deploy/.env}
+      ACME_EMAIL: ${ACME_EMAIL:?Set ACME_EMAIL in deploy/.env}
+    ports: ['80:80', '443:443', '443:443/udp']
+    volumes: ['./caddy:/etc/caddy:ro', 'caddy-data:/data', 'caddy-config:/config']
+    networks:
+      edge:
+        ipv4_address: 172.29.61.2
+    depends_on:
+      api: {condition: service_healthy}
+      frontend: {condition: service_started}
+    restart: unless-stopped
+networks:
+  edge:
+    ipam:
+      config: [{subnet: 172.29.61.0/24}]
+volumes:
+  api-scratch:
+  caddy-data:
+  caddy-config:

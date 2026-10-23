@@ -1,0 +1,18 @@
+{
+    email {$ACME_EMAIL}
+    admin off
+}
+{$DRIVE_DOMAIN} {
+    encode zstd gzip
+    header {
+        Strict-Transport-Security "max-age=31536000"
+        X-Content-Type-Options nosniff
+        Referrer-Policy no-referrer
+        -Server
+    }
+    @private path /ops/* /metrics /health /health/*
+    respond @private 404
+    @api path /api/* /health /health/*
+    reverse_proxy @api api:4100
+    reverse_proxy frontend:3000
+}

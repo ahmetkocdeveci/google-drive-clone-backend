@@ -18,6 +18,8 @@ jobs:
         with:
           version: '11.25.0'
       - run: pnpm install --frozen-lockfile
+      - name: Validate production deployment template
+        run: docker compose --env-file deploy/.env.example -f deploy/compose.yaml config --no-env-resolution --quiet
       - name: Start isolated local test services
         run: |
           docker compose up -d

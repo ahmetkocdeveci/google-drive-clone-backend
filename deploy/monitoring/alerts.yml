@@ -1,0 +1,23 @@
+groups:
+  - name: ortak-drive
+    rules:
+      - alert: DriveArchiveDiskLow
+        expr: drive_scratch_available_bytes < 5 * 1024 * 1024 * 1024
+        for: 5m
+        labels: {severity: warning}
+        annotations: {summary: 'Private archive scratch disk has less than 5 GiB available'}
+      - alert: DriveUnavailable
+        expr: up{job="ortak-drive"} == 0
+        for: 2m
+        labels: {severity: critical}
+        annotations: {summary: 'Drive API monitoring unreachable'}
+      - alert: DriveQueueFailed
+        expr: drive_queue_items{state="failed"} > 0
+        for: 5m
+        labels: {severity: warning}
+        annotations: {summary: 'Drive durable queue has failed items'}
+      - alert: DriveQueueDelayed
+        expr: drive_queue_oldest_age_seconds{state=~"pending|sending|running"} > 900
+        for: 5m
+        labels: {severity: warning}
+        annotations: {summary: 'Drive durable queue is delayed'}

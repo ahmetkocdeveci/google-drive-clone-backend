@@ -80,7 +80,7 @@ Not dosyası hazırlamamız, Ahmet'in bütün dersleri izleyip kavramları öğr
 | Mongoose kaynağı | Schema/model/query notları | Kaynağın tümünün not alarak izlendiği doğrulanmadı |
 | MongoDB ek playlist | Kaynak rehberde korunmuş | Kavram notlarının kaynak bazında tamamlanması doğrulanmadı; PDF bu kaynaktaki uygulamayı yapmayı zorunlu tutmuyor |
 | Data Modeling dokümantasyonunun tüm bölümleri | Temel modelleme notları ve günlük şablonu | Tüm bölüm ağacını kapsayan doldurulmuş not/okuma envanteri yok; eksiksiz çalışıldı denemez |
-| Kavramları kendi cümleleriyle deftere geçirmek | [Defter notları](defter-notlari-mongodb-backend.md), [çalışma rehberi](calisma-rehberi.md) | Kullanıcının fiziksel defterini veya öğrenme/tamamlama durumunu bu araçlarla doğrulayamam |
+| Kavramları kendi cümleleriyle deftere geçirmek | Yerel çalışma belgeleri: `defter-notlari-mongodb-backend.md`, `calisma-rehberi.md` (bu backend deposunun kapsamında değil) | Kullanıcının fiziksel defterini veya öğrenme/tamamlama durumunu bu araçlarla doğrulayamam |
 | Eski kaynakların zihniyetini güncel sürümlerle uygulamak | Modern ayrı Nuxt/Express/Mongoose paketleri, modelleme ve güvenlik kararları | Ders/okuma kabulü ile bağımlılık bakımının ayrıca tamamlanması gerekir |
 
 ## Öncelikli devam sırası
