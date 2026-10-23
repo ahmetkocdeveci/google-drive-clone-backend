@@ -1,0 +1,17 @@
+node_modules/
+.env
+.env.*
+!.env.example
+.data/
+coverage/
+*.log
+client_secret_*.json
+credentials*.json
+service-account*.json
+*.pem
+*.key
+*.p12
+*.pfx
+backups/
+*.dump
+*.enc
