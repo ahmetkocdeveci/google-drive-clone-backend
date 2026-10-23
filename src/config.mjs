@@ -44,6 +44,7 @@ export function createConfig(env = process.env) {
   const config = {
     production, host: env.HOST || '127.0.0.1', port: Number(env.PORT || 4100),
     trustedProxyCidrs: trustedProxyCidrs(env.TRUSTED_PROXY_CIDRS),
+    edgeProxyToken: env.EDGE_PROXY_TOKEN ? secret('EDGE_PROXY_TOKEN') : null,
     frontendOrigin, apiOrigin, mongodbUri: z.string().min(1).parse(env.MONGODB_URI),
     cookieName: production ? '__Host-drive-session' : 'drive-session', sessionTtlMs: 7 * 86400000,
     invitationTtlMs: 72 * 3600000, workspaceStorageLimit: 5 * 1024 ** 3,

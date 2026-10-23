@@ -90,4 +90,6 @@ Güncel kalite incelemesi ve kalan işler: [eksik ve kalite raporu](docs/kalite-
 
 Üretim Compose/Caddy, örnek ortam ve izleme kaynakları bu depodaki [deploy rehberinde](deploy/README.md) bulunur. Frontend deposunu aynı üst dizine klonlayın. Bu dosyaların hazırlanması canlı kurulumun tamamlandığı anlamına gelmez.
 
+Cloudflare Pages + Northflank pilot kurulumu için [gateway ve güvenli ortam aktarımı rehberi](docs/cloudflare-northflank.md) hazırlandı. `EDGE_PROXY_TOKEN` etkinse API yalnız doğrulanmış gateway'den gelen istekleri kabul eder; kullanıcı yetkilendirmesi ayrıca uygulanır.
+
 Temel kaynaklar: [Mongoose transactions](https://mongoosejs.com/docs/transactions.html), [Express güvenlik](https://expressjs.com/en/advanced/best-practice-security.html), [Google OpenID Connect](https://developers.google.com/identity/openid-connect/openid-connect).

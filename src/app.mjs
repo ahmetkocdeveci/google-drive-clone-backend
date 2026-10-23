@@ -10,6 +10,7 @@ import { requestContext } from './request-context.mjs'
 import { createOperations } from './operations.mjs'
 import { createArchivesRouter } from './archives.mjs'
 import { createAuditRouter } from './audit-events.mjs'
+import { createEdgeProxyGuard } from './edge-proxy.mjs'
 
 export function createApp({models,config,mailer,storage,rateLimit=true,logger=console}) {
   const app=express()
@@ -23,6 +24,7 @@ export function createApp({models,config,mailer,storage,rateLimit=true,logger=co
     requestContext.run({requestId:req.requestId},next)
   })
   app.use(helmet({crossOriginResourcePolicy:{policy:'same-site'}}))
+  app.use(createEdgeProxyGuard(config))
   app.use((req,res,next)=>{
     res.set({'X-Request-Id':req.requestId,'Cache-Control':'no-store','Referrer-Policy':'no-referrer'})
     const requestOrigin=req.get('Origin')
@@ -39,7 +41,7 @@ export function createApp({models,config,mailer,storage,rateLimit=true,logger=co
     const sensitive=/^\/auth\/(login|register|csrf-token|google\/(?:start|link)|email-verification\/resend|password-reset)/i.test(req.path)
     const interval=sensitive?15*60000:60000, limit=sensitive?30:300
     const window=Math.floor(Date.now()/interval)
-    const key=createHash('sha256').update(`${req.ip}:${sensitive?'auth':'api'}:${window}`).digest('hex')
+    const key=createHash('sha256').update(`${req.edgeClientIp || req.ip}:${sensitive?'auth':'api'}:${window}`).digest('hex')
     let record
     try { record=await models.RateLimit.findOneAndUpdate({key},{$inc:{count:1},$setOnInsert:{expiresAt:new Date((window+1)*interval)}},{returnDocument:'after',upsert:true}) }
     catch(error) { if(error.code!==11000) throw error; record=await models.RateLimit.findOneAndUpdate({key},{$inc:{count:1}},{returnDocument:'after'}) }

@@ -2,5 +2,13 @@ node_modules
 .env
 .env.*
 .data
+.git
 tests
 *.log
+client_secret_*.json
+credentials*.json
+service-account*.json
+*.pem
+*.key
+*.p12
+*.pfx
