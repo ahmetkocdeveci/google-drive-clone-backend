@@ -4,6 +4,7 @@ import { promisify } from 'node:util';
 import { createRemoteJWKSet, jwtVerify } from 'jose';
 import { z } from 'zod';
 import { HttpError } from './errors.mjs';
+import { sealOAuthInvitation, openOAuthInvitation } from './oauth-invitation.mjs';
 
 const scrypt = promisify(scryptCallback);
 const SCRYPT_OPTIONS = Object.freeze({ N: 131072, r: 8, p: 1, maxmem: 256 * 1024 * 1024 });
@@ -334,25 +335,36 @@ export function createAuthRouter({ models, config, mailer }) {
     res.status(204).end();
   });
 
-  router.get('/google/start', async (req, res) => {
+  async function startGoogle(req, res) {
     if (!config.googleClientId || !config.googleClientSecret) {
       throw new HttpError(503, 'GOOGLE_NOT_CONFIGURED', 'Google ile giriş henüz yapılandırılmadı. E-posta ve şifre ile devam edebilirsin.');
     }
+    const input = req.method === 'POST'
+      ? validation(z.object({ returnTo: z.string().max(2048).optional(), invitationToken: tokenSchema.optional() }).strict(), req.body)
+      : req.query;
+    const returnTo = safeReturnTo(input.returnTo);
+    if (input.invitationToken !== undefined && (req.method !== 'POST' || returnTo !== '/invitations/accept')) throw new HttpError(400, 'INVALID_INPUT', 'Gönderilen bilgileri kontrol et.');
     const session = await ensureAnonymousSession(req, res, models, config);
     const state = randomToken();
     const nonce = randomToken();
     const codeVerifier = randomBytes(48).toString('base64url');
-    await models.OAuthAttempt.create({
+    const attempt = {
       _id: randomUUID(), stateHash: digest(state), sessionId: session._id,
-      nonce, codeVerifier, returnTo: safeReturnTo(req.query.returnTo),
+      nonce, codeVerifier, returnTo,
       expiresAt: new Date(Date.now() + OAUTH_TTL_MS), consumedAt: null,
       intent: 'login', ...(req.auth ? { userId: req.auth.user._id, passwordVersion: passwordVersion(req.auth.user) } : {}),
-    });
-    res.redirect(302, googleAuthorizationUrl(config, { state, nonce, codeVerifier }));
-  });
+    };
+    if (input.invitationToken) attempt.invitationContext = sealOAuthInvitation(config, input.invitationToken, attempt);
+    await models.OAuthAttempt.create(attempt);
+    const authorizationUrl = googleAuthorizationUrl(config, { state, nonce, codeVerifier });
+    return req.method === 'POST' ? res.json({ authorizationUrl }) : res.redirect(302, authorizationUrl);
+  }
+  router.get('/google/start', startGoogle);
+  router.post('/google/start', startGoogle);
 
   router.get('/google/callback', async (req, res) => {
     let linkAttempt = false;
+    let invitationToken = null;
     const fail = async code => {
       const allowed = new Set(['google_cancelled', 'google_failed', 'google_account_link_required', 'google_state_invalid', 'google_unavailable']);
       let accountContext = false;
@@ -361,6 +373,10 @@ export function createAuthRouter({ models, config, mailer }) {
       }
       const destination = new URL(accountContext ? '/account' : '/login', config.frontendOrigin);
       destination.searchParams.set('authError', allowed.has(code) ? code : 'google_failed');
+      if (!accountContext && invitationToken) {
+        destination.searchParams.set('returnTo', '/invitations/accept');
+        destination.hash = new URLSearchParams({ invitationToken }).toString();
+      }
       return res.redirect(303, destination.toString());
     };
     try {
@@ -371,12 +387,18 @@ export function createAuthRouter({ models, config, mailer }) {
     if (!req.authSession) throw new HttpError(400, 'OAUTH_STATE_INVALID', 'Giriş oturumu geçersiz. Yeniden giriş yap.');
     const attempt = await models.OAuthAttempt.findOneAndUpdate({
       stateHash: digest(state), sessionId: req.authSession._id, consumedAt: null, expiresAt: { $gt: new Date() },
-    }, { $set: { consumedAt: new Date() } }, { returnDocument: 'after' }).lean();
+    }, { $set: { consumedAt: new Date() }, $unset: { invitationContext: 1 } }, { returnDocument: 'before' }).lean();
     if (!attempt) {
       if (req.auth) linkAttempt = (await models.OAuthAttempt.findOne({ stateHash: digest(state), sessionId: req.authSession._id }).select('intent').lean())?.intent === 'link';
       throw new HttpError(400, 'OAUTH_STATE_INVALID', 'Giriş oturumu geçersiz. Yeniden giriş yap.');
     }
     linkAttempt = attempt.intent === 'link';
+    if (!linkAttempt && attempt.invitationContext) {
+      try {
+        if (attempt.returnTo !== '/invitations/accept') throw new Error('Invalid return context');
+        invitationToken = tokenSchema.parse(openOAuthInvitation(config, attempt.invitationContext, attempt));
+      } catch { throw new HttpError(400, 'OAUTH_STATE_INVALID', 'Giriş oturumu geçersiz.'); }
+    }
     if (linkAttempt && (!req.auth || req.auth.user._id !== attempt.userId || passwordVersion(req.auth.user) !== attempt.passwordVersion)) throw new HttpError(400, 'OAUTH_STATE_INVALID', 'Giriş oturumu geçersiz.');
     // Consent errors consume the same browser-bound state as a successful callback.
     if (req.query.error !== undefined) return fail(req.query.error === 'access_denied' ? 'google_cancelled' : 'google_failed');
@@ -459,7 +481,9 @@ export function createAuthRouter({ models, config, mailer }) {
       }, transactionOptions);
     } catch (error) { duplicateAccount(error); }
     setSessionCookie(res, config, result.session.token);
-    res.redirect(303, new URL(linkAttempt ? '/account?linked=google' : safeReturnTo(attempt.returnTo), config.frontendOrigin).toString());
+    const destination = new URL(linkAttempt ? '/account?linked=google' : safeReturnTo(attempt.returnTo), config.frontendOrigin);
+    if (!linkAttempt && invitationToken) destination.hash = new URLSearchParams({ token: invitationToken }).toString();
+    res.redirect(303, destination.toString());
     } catch (error) {
       const failures = {
         GOOGLE_NOT_CONFIGURED: 'google_unavailable', OAUTH_STATE_INVALID: 'google_state_invalid',

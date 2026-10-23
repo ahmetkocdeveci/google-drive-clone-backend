@@ -25,15 +25,16 @@ Bu sözleşme kardeş `google-drive-clone-backend` projesinde uygulanır. Eski r
 | Bağlantıyı yenile | POST `/auth/email-verification/resend` | 204; kullanıcı başına60sn, eski tokenlar iptal |
 | Çıkış | POST `/auth/logout` | 204 |
 | Google | GET `/auth/google/start?returnTo=/...` | Backend OAuth redirect |
+| Google ve bekleyen davet | POST `/auth/google/start` `{returnTo?:string,invitationToken?:string}` | `{authorizationUrl:string}`; CSRF ve Origin zorunlu |
 | Google hesabını bağla | POST `/auth/google/link/start` `{password?:string}` | `{authorizationUrl:string}`; doğrulanmış oturum, şifreli hesap için mevcut şifre |
 | Şifre yenileme iste | POST `/auth/password-reset/request` `{email}` | Her adres için genel202; boş body olabilir |
 | Şifreyi yenile | POST `/auth/password-reset/confirm` `{token,password}` | 204; token tüketilir ve hesabın tüm oturumları kapatılır |
 | Davet özeti | POST `/invitations/inspect` `{token}` | InvitationPreview |
 | Davet kabul | POST `/invitations/accept` `{token}` | Workspace |
 
-OAuth state/nonce/PKCE, ID token doğrulama, hesap eşleştirme ve returnTo allowlist backend sorumluluğudur. Davet/verification tokenları query yerine fragment kullanır. GET ile tüketilmez. Google redirect davet belleğini sıfırlar; kullanıcı bağlantıyı yeniden açmalıdır.
+OAuth state/nonce/PKCE, ID token doğrulama, hesap eşleştirme ve returnTo allowlist backend sorumluluğudur. Davet/verification tokenları query yerine fragment kullanır; GET ile tüketilmez. Frontend Google girişini POST ile başlatır. `invitationToken` yalnız tam `/invitations/accept` dönüş yolu için kabul edilir; GET query'sinde reddedilir. Token Google yetkilendirme URL'sine veya tarayıcı depolamasına eklenmez. Backend tokenı 10 dakikalık OAuthAttempt içinde AES-256-GCM ile şifreler; şifreli bağlam session ve state'e bağlıdır. Geçerli callback kaydı tek sefer tüketir ve bağlamı siler. Başarı `/invitations/accept#token=...` ile döner; kabul ayrıca eşleşen doğrulanmış e-posta ve kullanıcının açık onayını ister. İptal/sağlayıcı hatasında aynı oturum için `/login?authError=...&returnTo=/invitations/accept#invitationToken=...` kullanılır. Login fragmenti belleğe alıp URL'den kaldırır; yeniden deneme daveti korur. Başka oturum, tekrar callback, değiştirilmiş veya süresi geçmiş kayıt tokenı geri döndürmez.
 
-Google düğmesi önce sağlayıcı durumunu sorgular. Google yapılandırılmamışsa kullanıcı giriş sayfasında kalır ve e-posta ile giriş seçeneği açıklanır.
+Google düğmesi önce sağlayıcı durumunu sorgular. Google yapılandırılmamışsa kullanıcı giriş sayfasında kalır ve e-posta ile giriş seçeneği açıklanır. Başlatma sırasında oturum veya bekleyen davet değişirse geciken sonuçla yönlendirme yapılmaz; hedef yalnız `https://accounts.google.com/o/oauth2/v2/auth` olabilir.
 
 OAuth callback başarısızlıkları backend tarafından `/login?authError=...` sayfasına yönlendirilir. Frontend yalnız `google_cancelled`, `google_failed`, `google_account_link_required`, `google_state_invalid`, `google_unavailable` kodları için sabit mesaj gösterir. Sağlayıcı hata metni veya rastgele query içeriği gösterilmez; işlenen kod URL'den kaldırılırken `returnTo` korunur.
 
@@ -67,7 +68,7 @@ Yükleme:
 
 İlerleme tamamlanan dosyaların toplam baytına göredir; fetch anlık gönderilen bayt ilerlemesini sağlamaz.
 
-`GET .../files/:fid/content` →Blob + Content-Type + Content-Disposition. Preview/download aynı guarded API'den alınır. Güvenli image türleri ve sandbox PDF önizlenir; HTML/SVG aktif içerik olarak render edilmez.
+`GET .../files/:fid/content` →Blob + Content-Type + Content-Disposition. Preview/download aynı guarded API'den alınır. Güvenli image türleri ve yetkili API blob'unu çizen PDF.js canvas önizlemesi desteklenir; HTML/SVG aktif içerik olarak render edilmez.
 
 Dosya/Range, doğrudan ZIP ve hazır async ZIP aktarımı boyunca oturum, hesap, üyelik, kaynak ve aktif üst klasörler tekrar denetlenir. Kontrol aralığı250 ms; bir kontrolün toplam bekleme sınırı1 saniyedir. Erişim kaybı veya kontrol hatasında sunucu bağlantıyı ve storage akışını kapatır. Bu sınırlar ağ gecikmesi ve daha önce gönderilmiş istemci tamponlarını geri almaz. HEAD gövde/izleme açmaz. Aynı süreçte en fazla32 açık akış ve kullanıcı başına4 akış izlenir; dolulukta503 `STREAM_BUSY` döner.
 

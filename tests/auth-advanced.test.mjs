@@ -28,6 +28,61 @@ async function provider(t,h,{beforeExchange}={}){
 }
 function errorRedirect(response,h,path,code){assert.equal(response.status,303);const url=new URL(response.headers.location);assert.equal(url.origin,h.config.frontendOrigin);assert.equal(url.pathname,path);assert.deepEqual([...url.searchParams],[['authError',code]])}
 
+test('Google login resumes an invitation through encrypted browser-bound context and still requires explicit acceptance',async t=>{
+  const h=await createHarness('oauth-invite',googleConfig);t.after(()=>h.close());const fake=await provider(t,h)
+  const owner=await h.user(),workspace=(await owner.request('post','/workspaces',{name:'OAuth invitation'})).body
+  assert.equal((await owner.request('post',`/workspaces/${workspace.id}/invitations`,{email:'resume-invite@gmail.com',role:'viewer'})).status,201)
+  await h.flushMail();const token=h.mail.findLast(item=>item.to==='resume-invite@gmail.com').text.match(/#token=([A-Za-z0-9_-]+)/)[1]
+  const agent=h.client(),start=await post(h,agent,'/google/start',{returnTo:'/invitations/accept',invitationToken:token})
+  assert.equal(start.status,200);assert.ok(!start.body.authorizationUrl.includes(token))
+  const query=await fake.token(start.body.authorizationUrl,'resume-invitation','resume-invite@gmail.com')
+  const attempt=await h.models.OAuthAttempt.findOne({stateHash:hash(query.state)}).lean()
+  assert.ok(attempt.invitationContext);assert.ok(!JSON.stringify(attempt).includes(token))
+  const response=await agent.get('/api/v1/auth/google/callback').query(query).expect(303)
+  const destination=new URL(response.headers.location)
+  assert.equal(destination.origin,h.config.frontendOrigin);assert.equal(destination.pathname,'/invitations/accept');assert.equal(new URLSearchParams(destination.hash.slice(1)).get('token'),token)
+  const consumed=await h.models.OAuthAttempt.findById(attempt._id).lean();assert.ok(consumed.consumedAt);assert.equal(consumed.invitationContext,undefined)
+  assert.equal(await h.models.Membership.countDocuments({workspaceId:workspace.id,status:'active'}),1)
+  const key=await csrf(h,agent)
+  await agent.post('/api/v1/invitations/inspect').set('Origin',h.config.frontendOrigin).set('X-CSRF-Token',key).send({token}).expect(200)
+  await agent.post('/api/v1/invitations/accept').set('Origin',h.config.frontendOrigin).set('X-CSRF-Token',key).send({token}).expect(200)
+  assert.equal(await h.models.Membership.countDocuments({workspaceId:workspace.id,status:'active',role:'viewer'}),1)
+  const replay=await agent.get('/api/v1/auth/google/callback').query(query).expect(303);assert.equal(new URL(replay.headers.location).hash,'')
+})
+
+test('Google invitation start requires CSRF, hides tokens from Google and restores consent cancellation only to the same session',async t=>{
+  const h=await createHarness('oauth-cancel',googleConfig);t.after(()=>h.close())
+  const agent=h.client(),token=randomBytes(32).toString('base64url'),body={returnTo:'/invitations/accept',invitationToken:token}
+  await agent.post('/api/v1/auth/google/start').set('Origin',h.config.frontendOrigin).send(body).expect(403)
+  const key=await csrf(h,agent)
+  await agent.post('/api/v1/auth/google/start').set('Origin','https://attacker.example').set('X-CSRF-Token',key).send(body).expect(403)
+  assert.equal((await post(h,agent,'/google/start',{...body,returnTo:'/workspaces'})).status,400)
+  assert.equal((await post(h,agent,'/google/start',{...body,extra:true})).status,400)
+  await agent.get('/api/v1/auth/google/start').query(body).expect(400)
+  const start=await post(h,agent,'/google/start',body),url=new URL(start.body.authorizationUrl),state=url.searchParams.get('state')
+  assert.equal(url.origin,'https://accounts.google.com');assert.ok(!start.body.authorizationUrl.includes(token))
+  const stranger=h.client();await csrf(h,stranger)
+  const denied=await stranger.get('/api/v1/auth/google/callback').query({state,error:'access_denied'}).expect(303)
+  assert.equal(new URL(denied.headers.location).hash,'')
+  const cancelled=await agent.get('/api/v1/auth/google/callback').query({state,error:'access_denied'}).expect(303)
+  const destination=new URL(cancelled.headers.location)
+  assert.equal(destination.pathname,'/login');assert.equal(destination.searchParams.get('authError'),'google_cancelled');assert.equal(destination.searchParams.get('returnTo'),'/invitations/accept')
+  assert.equal(new URLSearchParams(destination.hash.slice(1)).get('invitationToken'),token)
+  assert.equal((await h.models.OAuthAttempt.findOne({stateHash:hash(state)}).lean()).invitationContext,undefined)
+})
+
+test('tampered, swapped and expired OAuth invitation context cannot recover a token',async t=>{
+  const h=await createHarness('oauth-tamper',googleConfig);t.after(()=>h.close());const agent=h.client()
+  async function start(){const response=await post(h,agent,'/google/start',{returnTo:'/invitations/accept',invitationToken:randomBytes(32).toString('base64url')});assert.equal(response.status,200);const state=new URL(response.body.authorizationUrl).searchParams.get('state');return {state,attempt:await h.models.OAuthAttempt.findOne({stateHash:hash(state)}).lean()}}
+  const first=await start(),second=await start()
+  await h.models.OAuthAttempt.updateOne({_id:second.attempt._id},{$set:{invitationContext:first.attempt.invitationContext}})
+  const swapped=await agent.get('/api/v1/auth/google/callback').query({state:second.state,error:'access_denied'}).expect(303)
+  assert.equal(new URL(swapped.headers.location).searchParams.get('authError'),'google_state_invalid');assert.equal(new URL(swapped.headers.location).hash,'')
+  await h.models.OAuthAttempt.updateOne({_id:first.attempt._id},{$set:{expiresAt:new Date(Date.now()-1000)}})
+  const expired=await agent.get('/api/v1/auth/google/callback').query({state:first.state,error:'access_denied'}).expect(303)
+  assert.equal(new URL(expired.headers.location).hash,'');assert.equal(new URL(expired.headers.location).searchParams.get('authError'),'google_state_invalid')
+})
+
 test('password reset is generic, single-use, verifies mailbox and revokes all sessions and pending OAuth',async t=>{
   const h=await createHarness('reset-main');t.after(()=>h.close())
   const account=await h.user({email:'reset-main@example.com',verified:false})

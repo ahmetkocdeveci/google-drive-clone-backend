@@ -1,5 +1,8 @@
 # Canlı kurulum için gerekenler — 20 Ekim 2026
 
+**23 Ekim güncel durum:** Google girişinden sonra daveti yeniden yapıştırma eksiği kodda kapatıldı. Session/state'e bağlı şifreli bağlam, tek kullanımlık callback ve açık davet kabulü eklendi; 28 hedefli backend auth ve 73 frontend testi geçti. Nuxt 4.6.2 güncellemesi moderate audit bulgularını 3'ten 0'a indirdi; iki upstream high araç zinciri bulgusu izleniyor. Yeni akışın manuel Google dönüşü kabulü ve canlı frontend/API yayını bekliyor. İki bağımsız private repository teslimi ve ilk uzak CI kabulü tamamlandı. Aşağıdaki tarihli kayıtlar geçmiş doğrulama kapsamını gösterir; güncel açık işler için kalite raporu esas alınmalıdır.
+
+
 Hesapların henüz hazır olmadığı bilgisine göre bu liste hazırlandı. Yerel kod ve testler, gerçek sağlayıcı hesabı ve üretim kabulünün yerine geçmez. Gizli anahtarları sohbete veya Git'e koyma; sunucudaki secret manager/yalnız yetkili hesabın okuyabildiği `.env.production` dosyasına gir.
 
 ## Hazırlanacak hesaplar ve ayarlar
@@ -119,6 +122,10 @@ Yerel giriş denemesi için backend ve mevcut frontend derlemesi güncel ayarlar
 
 ### Gerçek Gmail SMTP hazırlığı — 22 Ekim 2026
 
+**GitHub CI — 23 Ekim:** İlk push sonrasında her iki deponun bağımsız CI iş akışı başarıyla tamamlandı. GitHub kaynak teslimi ve ilk CI kabulü tamamdır; canlı frontend/API yayını hâlâ ayrı adımdır.
+
+**GitHub teslimi — 23 Ekim:** Backend ve frontend kullanıcıya ait iki ayrı private GitHub deposuna push edildi. Kaynak `.env`, veri ve derleme çıktıları hariç tutuldu; uzak `main` commitleri yerelle eşleşiyor. Bağımsız CI akışları başladı; canlı yayın henüz yapılmadı. [Teslim raporu](github-teslim-durumu.md).
+
 **Teslimat kabulü — 23 Ekim:** Kullanıcı `test-smtp.mjs --send-to-self` ile kendi gönderici adresine yollanan test e-postasının Gmail kutusuna geldiğini doğruladı. Böylece gerçek Gmail SMTP bağlantısı ve kendi adresine teslimat manuel olarak kabul edildi. Farklı alıcıya gerçek davet e-postası teslimatı ayrıca denenmedi; kullanıcı ikinci posta hesabına şu an erişemiyor. Önceki Mailpit davet kabulü/rol testleri ayrı doğrulamalardır.
 
 **Alternatif teslimat testi — 23 Ekim:** Kullanıcı ikinci posta hesabına erişemediğini bildirdi. `scripts/test-smtp.mjs` eklendi; varsayılan çağrı yalnız SMTP bağlantısını doğrular. Kullanıcının `--send-to-self` ile çalıştırması, yalnız yapılandırılmış Gmail göndericisinin kendi adresine sabit içerikli tek test mesajı gönderir. Betik çalıştırıldığı dizinden bağımsız backend `.env` dosyasını bulur; sırları ve gönderici adresini yazdırmaz. Üç hedefli testte varsayılan gönderimsiz davranış, tek alıcının göndericiye sabitlenmesi, eksik adres ve SMTP reddi doğrulandı. Asistan gerçek test e-postasını göndermedi; kullanıcı komutu çalıştırıp kendi kutusunu kontrol edecek. SMTP kabulü ve gelen kutusu teslimatı ayrı sonuçlardır.
@@ -140,3 +147,5 @@ Yerel kayıt sonrasında önce e-posta göndermeyen SMTP `verify()` yapılmalı.
 **Kabul sonucu:** Kullanıcı davet e-postasının yerel kutuya geldiğini, ikinci hesapla uygulamaya giriş yaptıktan sonra aynı bağlantıyı yeniden açıp daveti kabul ettiğini bildirdi. İlgili çalışma alanında kişisel bilgi/token yazdırmadan yapılan veritabanı kontrolü `1 Owner`, `1 Viewer`, `1 kabul edilmiş davet` gösterdi. İlk bağlantı açılışından giriş sonrasına otomatik devam akışı kullanıcı tarafından doğrulanmadı; mevcut denemede bağlantı yeniden yapıştırıldı. Sonraki manuel kontrollerde kullanıcı Viewer, Editor ve üyelik kaldırılmasıyla erişim iptalinin de çalıştığını doğruladı; ayrıntılar frontend durum raporunda kayıtlı.
 
 Kullanıcı ikinci bir Gmail hesabıyla ilerleyeceğini bildirdi. Mevcut `ortak-drive-dev-mailpit-1` konteyneri başlatıldı; SMTP 1025 ve test kutusu 8025 portlarının yalnız `127.0.0.1` adresine bağlı olduğu doğrulandı. Uygulamanın yapılandırılmış SMTP bağlantısında `verify()` başarılı, Mailpit `/livez` yanıtı 200. Mesaj içerikleri ve davet bağlantıları araç çıktısına alınmadı; test için asistan tarafından davet oluşturulmadı. Kullanıcı ana hesabıyla ikinci adresi Viewer olarak davet edip `http://127.0.0.1:8025` kutusundan bağlantıyı almalı. Bu yapılandırma Gmail'e gerçek teslimat yapmaz; dış SMTP sağlayıcısı hâlâ bekliyor. Farklı hesapla davet kabulü ve rol kabul testleri henüz tamamlanmadı.
+
+23 Ekim son yerel doğrulaması: Nuxt 4.6.2 üretim derlemesi, E2E kaynak tip kontrolü ve 21 manifest runtime sınırı kontrolü geçti; node-forge/braces üretim çıktısında bulunmadı. İlk derleme Windows EPERM nedeniyle durdu, aynı derleme gerekli izinlerle başarılı oldu. Outbox 0 pending/0 sending/0 failed iken backend yeni kodla yeniden başlatıldı; Atlas /health ok ve frontend 4179 dinleme kontrolü başarılı. Bu kontroller frontend sayfasını açma veya yeni Google akışının manuel kabulü değildir.

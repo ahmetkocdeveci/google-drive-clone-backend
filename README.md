@@ -40,6 +40,7 @@ Uygulamada kayıt ol; doğrulama mesajını **yerel Mailpit kutusundan** aç, ba
 - Anonim oturuma da bağlı CSRF anahtarı; Origin kontrolü; MongoDB tabanlı hız sınırı; sınırlı parola/dosya eşzamanlılığı.
 - Workspace oluştururken Owner üyeliği. Owner/Editor/Viewer rolü kullanıcıya değil üyeliğe aittir ve her API isteğinde güncel kayıttan kontrol edilir.
 - Workspace/üye/rol yönetimi, atomik sahiplik devri, eşzamanlı işlemlerde son Owner koruması.
+- Google girişinde bekleyen daveti koruyan CSRF korumalı POST başlangıcı; 10 dakikalık, session/state'e bağlı AES-256-GCM bağlamı. Callback tek kullanımlıdır, şifreli bağlamı siler ve açık davet kabul ekranına döner; iptal/yeniden deneme daveti korur.
 - Kayıtlı olmayan e-postaya Editor/Viewer daveti; hash'lenmiş tek kullanımlık token, 72 saat süre, iptal/yenileme, doğrulanmış eşleşen e-posta ile kabul. Tokenlar liste yanıtlarına verilmez.
 - İç içe klasörler; arama/sıralama/tür filtresi; ad değiştirme/taşıma/silme, sürüm ve döngü kontrolü; tüm üst klasörlerin aktif olması şartı.
 - İmzalı PUT → özel staging nesnesi → doğrulanan immutable dosya → transaction ile görünür kılma. Dosya başına25 MiB; workspace başına5 GiB kota ve eşzamanlı rezervasyon kontrolü.

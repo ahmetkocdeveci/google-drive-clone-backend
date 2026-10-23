@@ -1,20 +1,12 @@
-# Kalite incelemesi ve kalan eksikler — 22 Ekim 2026
+# Kalite incelemesi ve kalan eksikler — 23 Ekim 2026
 
-**23 Ekim — Gerçek e-posta teslimatı:** Kullanıcı gönderici Gmail hesabının kendi adresine gönderilen test mesajının gelen kutusuna ulaştığını doğruladı. Gmail SMTP bağlantısı ve self-test teslimatı kabul edildi. İkinci posta hesabına erişim olmadığından farklı alıcıya gerçek davet teslimatı henüz denenmedi. İki bağımsız private repository ve canlı yayın çalışmaları devam ediyor; GitHub CLI yerel PATH'te bulunmadı.
+Google ile girişten sonra davet bağlantısını yeniden yapıştırma sorunu giderildi. Davet tokenı Google URL'sine veya tarayıcı depolamasına yazılmadan, 10 dakikalık şifreli OAuth kaydında session ve state'e bağlanır. Callback bağlamı tek sefer tüketip siler; kullanıcı yine daveti açıkça kabul eder. İptal, başka oturum, değiştirilmiş bağlam, süre, replay, CSRF ve geciken frontend yanıtları test edildi. Yeni akışın gerçek tarayıcıda Google dönüşü kabulü ayrıca bekliyor.
 
-**23 Ekim — Gmail SMTP bağlantısı:** Kullanıcı gerçek gönderici ayarını yerelde kaydetti; Gmail TLS/kimlik doğrulaması e-posta göndermeyen `verify()` ile geçti. Eski posta kuyruğu boşken backend yeni ayarla yeniden başlatıldı ve Atlas sağlık kontrolü başarılı. Gerçek davetin alıcı kutusuna teslimi kullanıcı testi olarak bekliyor; SMTP bağlantı başarısı teslimat kabulü olarak gösterilmemelidir.
+Bu değişiklikler için **28/28 hedefli backend auth** ve **73/73 frontend testi**, Nuxt tip ve E2E kaynak tip denetimleri geçti. Tam backend ve Docker sonuçları aşağıda tarihleriyle ayrılır; bu hedefli çalıştırma tüm testlerin yeniden çalıştırıldığı anlamına gelmez. Nuxt 4.6.2'ye güncellendi: audit sonucu frontend'de 2 high/0 moderate/0 critical, backend'de 0 bulgu. İki upstream araç zinciri bildirimi ve üretim çıktısı sınırı [bağımlılık raporunda](bagimlilik-guvenlik-durumu.md).
 
-**Yerel manuel kabul sonuçları:** Kullanıcı bir PDF için yükleme/önizleme/indirmeyi, iki workspace arasında dosya listelerinin ayrıldığını, ikinci hesapla davet kabulünü, Viewer ve Editor yetki sınırlarını ve üyeliğin kaldırılmasıyla erişimin kesildiğini doğruladı. Bu kapsamda planlanan manuel kontrol listesi tamamlandı. Sonuçlar doğrudan API güvenlik testlerinin veya otomatik browser E2E'nin bu tur yeniden çalıştırıldığını göstermez. Gerçek dış e-posta teslimatı, iki bağımsız private repository, canlı frontend/API yayını ve diğer cihaz/dosya türü kabul çalışmaları hâlâ bekliyor.
+**Tamamlanan teslim ve manuel kabul:** İki ayrı private GitHub repository oluşturulup kaynakları push edildi; ilk backend/frontend uzak CI ve Docker kontrolleri başarılı. Gerçek Atlas ve private R2 doğrulandı. Kullanıcı Google ile iki hesapta giriş, bir PDF'nin yükleme/önizleme/indirmesi, iki workspace ayrımı, davet kabulü, Viewer/Editor sınırları ve üyelik kaldırınca erişimin kesilmesini doğruladı. Gmail SMTP bağlantısı başarılı; kullanıcı kendi gönderici adresine test mesajının teslimini doğruladı. Farklı alıcıya gerçek SMTP davet teslimi ayrıca bekliyor. [GitHub teslim kaydı](github-teslim-durumu.md), [PDF eşleştirmesi](pdf-ister-karsilastirmasi.md).
 
-**Manuel PDF kabulü:** Kullanıcı, PDF.js düzeltmesinden sonra kendi tarayıcısında PDF önizlemesinin düzeldiğini doğruladı. Aşağıdaki düzeltme notunda bekleyen mevcut PDF görsel kabulü tamamlandı; diğer tarayıcı/cihaz ve dosya türü kontrolleri ayrıca bekliyor.
-
-**Son güncelleme — PDF önizleme:** Kullanıcının bildirdiği PDF hatasında mevcut iframe sandbox'ının Chromium PDF eklentisini engellediği belirlendi ([Chromium kaydı](https://issues.chromium.org/issues/41131921)). Önizleme uygulama içinde canvas'a çizilen PDF.js görüntüleyicisiyle değiştirildi; çalışma alanı/API erişim kontrolü korunuyor. Son frontend sonucu **68/68**; iki gerçek PDF sayfası piksel düzeyinde ve bozuk dosya reddi test edildi. Nuxt tip, E2E kaynak tip, üretim derlemesi ve runtime sınırı kontrolleri başarılı. Yerel güncel frontend çalışıyor; kullanıcı tarayıcısında tekrar deneme bekleniyor. Bu sonuç önceki API/MongoDB entegrasyonlarını veya tam backend paketini yeniden çalıştırıldığı anlamına gelmez.
-
-**Karar:** Son incelemede bulunan üç kod sorunu düzeltildi: hazır ZIP iptalinde arşiv sınırının serbest kalması, sekmeye dönüşte güncel workspace rolünün uygulanması ve kesilen indirmede güvenli Türkçe hata. 22 Ekim'de frontend66/66, hedefli gerçek API/MongoDB entegrasyon2/2 testi, Nuxt tip kontrolü, E2E kaynak tip kontrolü, üretim derlemesi ve runtime paket kontrolü geçti. Backend'in önceki tam101/101 sonucu21 Ekim'e aittir; bu tur tam backend paketi ve Docker imajları yeniden çalıştırılmadı. Canlı sağlayıcı kurulumu, gerçek tarayıcı kabulü ve iki araç zinciri güvenlik bildiriminin takibi sürüyor.
-
-İnceleme sadece önceki testleri tekrar çalıştırmakla sınırlanmadı. Kimlik, dosya yaşam döngüsü ve frontend ayrı incelendi; eşzamanlılık, istemci iptali, protokol ve yapılandırma hataları kontrollü olarak yeniden üretildi. Başarılı testler bütün olası hataların yokluğu anlamına gelmez.
-
-**PDF kapsam kontrolü — 22 Ekim:** Dört sayfalık karşılaştırmada son bulunan iki kod eksiği kapatıldı: hiyerarşik klasör upload ve dosya ayrıntısında klasör konumu/Klasöre git.66 frontend ve2 hedefli API/MongoDB testi başarılı; ikinci entegrasyon testi artık nested upload baytları ve Viewer reddini de kapsar. İki proje hâlâ bağımsız repository olarak teslim edilmedi; canlı bucket/deployment ve gerçek browser kabulü bekliyor. [Madde eşleştirmesi](pdf-ister-karsilastirmasi.md).
+Aşağıdaki teknik tablolar önceki inceleme/test kayıtlarını korur. Son bölümdeki kalan işler güncel durumu gösterir. Otomatik tarayıcı E2E/axe bu ortamın erişim politikası nedeniyle çalıştırılmadı; DOM, odak ve tüm cihaz kabulü tamamlanmış sayılmıyor.
 
 ## Bulunan ve düzeltilen sorunlar
 
@@ -45,7 +37,7 @@
 - Backend: **21 Ekim tam çalıştırması101/101 başarılı**, skip yok. 22 Ekim hedefli frontend entegrasyon dosyası2/2 geçti; yeni iptal/yeniden deneme regresyonu dahil. Tam backend paketi bu tur tekrarlanmadı. MongoDB replica set, gerçek HTTP,2 kullanıcı/çoklu workspace, rol, hesap güvenliği, arşiv/lease yarışları, sayfalama ve gerçek DB restore dahil.
 - Frontend: **22 Ekim66/66 başarılı**; domain, HTTP adapter ve gerçek composable oturum yarışları. Bunlar tarayıcı DOM testleri değildir.
 - TypeScript denetimi ve son Nuxt üretim derlemesi başarılı.
-- Playwright/axe test kaynakları ve ayrı E2E tip kontrolü hazır; tarayıcı testleri çalıştırılmadı. CI'daki browser kabulü yalnız açık manuel seçimle başlar; uzak GitHub üzerinde çalıştırma/yayın yapılmadı.
+- Playwright/axe test kaynakları ve ayrı E2E tip kontrolü hazır; tarayıcı testleri çalıştırılmadı. Otomatik tarayıcı kabulü uzak bağımsız CI akışlarına dahil değildir; ilk unit/tip/build/Docker CI çalışmaları geçti, canlı yayın yapılmadı.
 - Backend/frontend üretim Docker imajları derlendi. Root olmayan kullanıcıyla backend import ve Nuxt sunucu başlangıcı doğrulandı. Compose ve Caddy yapılandırma doğrulaması geçti; gerçek TLS/alan adı kurulumu değildir.
 - Gerçek SMTP/Mailpit ile kayıt → doğrulama → workspace → parola sıfırlama → yeni parolayla giriş geçti. Mesajlar yerel kutuda kalır.
 - MongoDB dump + özel dosya baytları şifreli yedekten ayrı DB/dizine döndürüldü; indeksler ve içerik eşleşti. CLI ile yerel geliştirme DB'sinin ayrıca yedeği alınıp ayrı hedefe restore edildi; koleksiyon sayıları eşleşti. Prova hedefi temizlendi, şifreli yedek Git dışında `.data/backups/20261021-cli-b72a3d` altında kaldı.
@@ -77,7 +69,7 @@
 | Aynı hesabın Owner→Viewer değişikliğinde eski menülerin kalması | Focus/visibility yenilemesi aktif workspace rol/yeteneklerini de alır. Değişiklik sayfa anahtarını yeniler; önceki sayfanın modal/istekleri dispose edilir. Üye/ayar/geçmiş ekranına yetki kaybında dosyalara, üyelik kaybında workspace listesine dönülür | Gerçek `useDrive` ile dört ekran,403/404, geciken eski hesap/workspace yanıtları, oturum sona ermesi, geçici ağ hatası ve eşzamanlı focus kontrolleri geçti. Değişmeyen yetkiler sayfayı gereksiz sıfırlamaz |
 | Gövde kesilince `terminated` gibi ham teknik hata | `response.blob()` hataları sabit Türkçe `DOWNLOAD_INTERRUPTED` mesajına çevrilir. Bilinçli iptalin özgün `AbortError`/sinyal nedeni korunur | Dosya ve hazır ZIP gövde kesilmesi, bilinçli iptal, başarısız temizlemenin asıl hatayı koruması test edildi |
 
-Test kaynakları: [frontend aktarım testleri](../google-drive-clone-frontend/tests/features.test.ts), [oturum/rol yarışları](../google-drive-clone-frontend/tests/session.test.ts), [gerçek API entegrasyonu](../google-drive-clone-backend/tests/frontend-integration.test.mjs). Geçici test DB'leri temizlendi; ana verilere dokunulmadı.
+Test kaynakları: [frontend aktarım testleri](https://github.com/ahmetkocdeveci/google-drive-clone-frontend/blob/main/tests/features.test.ts), [oturum/rol yarışları](https://github.com/ahmetkocdeveci/google-drive-clone-frontend/blob/main/tests/session.test.ts), [gerçek API entegrasyonu](https://github.com/ahmetkocdeveci/google-drive-clone-backend/blob/main/tests/frontend-integration.test.mjs). Geçici test DB'leri temizlendi; ana verilere dokunulmadı.
 
 Tarayıcı için Owner→Viewer değişiminde açık klasör modalının kapanması ve işlem geçmişinden yönlendirme senaryoları da yazıldı; yalnız kaynak tip denetimi yapıldı. Tarayıcı erişim politikası nedeniyle bu testler çalıştırılmadı. DOM/odak/görsel kabulü tamamlanmış sayılmaz. Son host derlemesi izin kısıtı nedeniyle önce başarısız oldu; aynı proje derlemesi gerekli dosya izinleriyle tamamlandı. Entegrasyon ilk denemede kapalı MongoDB nedeniyle çalışamadı; mevcut MongoDB konteyneri başlatılınca iki test de geçti.
 
@@ -89,13 +81,12 @@ Atlas bağlantısı/ping, replica set ve16 modelin koleksiyon/indeks kurulumu do
 
 | Öncelik | İş | Neden tamamlanmış sayılmıyor? |
 | --- | --- | --- |
-| PDF teslimi | Gerçekten iki ayrı repository ve bağlantıları | İsimler uygun iki paket aynı üst repository içinde; ayrı repo teslimi henüz yok |
 | PDF öğrenme kapsamı | Tüm dersler ve Data Modeling bölümleri için kişisel notlar | Hazır rehber/özet var; kaynakların tamamının çalışıldığına dair bölüm envanteri ve kişisel tamamlama kaydı yok |
-| Canlı kullanım öncesi | Google OAuth, harici SMTP ve yayın ortamı ayarları | Atlas ve özel R2 bağlantısı, yerel CORS ve provider dosya akışı doğrulandı. Google, dış SMTP, yayın origin ve canlı uygulama kabulü bekliyor; Mailpit gerçek alıcılara mesaj göndermez |
+| Canlı kullanım öncesi | Yayın ortamı ve farklı alıcıya gerçek davet e-postası | Google yerel kabulü, Atlas/R2 ve Gmail self-test tamamlandı. HTTPS yayın origin'leri ve farklı alıcıya gerçek SMTP davet teslimi bekliyor |
 | Canlı kullanım öncesi | HTTPS, aynı site/gateway, üretim MongoDB erişimi ve secret yönetimi | Yerel compose üretim altyapısı değildir. Üretim ortamı kurulup gerçek cookie/CSRF/proxy akışı test edilmeli |
 | Canlı kullanım öncesi | Gerçek tarayıcı E2E, mobil/klavye/erişilebilirlik ve önizleme kabulü | Kaynak, tip, API ve composable kontrolleri DOM/görsel davranışı garanti etmez. Son değişiklikler tarayıcıda onaylanmadı |
 | Güvenlik takibi | Nuxt araç zincirinde `node-forge` ve `braces` için iki high bildirim | Kaynak paketin `pnpm audit --prod` çıktısında mevcut; yayımlanmış düzeltme sürümü yok. Üretim imajında bu paketler bulunmadı ve tekrar girmelerini engelleyen `check:runtime` derleme kontrolü eklendi. Paket açıkları düzeltilmiş sayılmadı; [ayrıntı ve resmi kaynaklar](bagimlilik-guvenlik-durumu.md) |
-| Canlı operasyon | CI'ı uzak repoda çalıştırma, gerçek alarm teslimatı ve bakım/yedek zamanlaması | Kaynaklar ve yerel tatbikat hazır; sunucu/hesap olmadığı için uzak çalıştırma, saklama/RPO/RTO ve canlı kurtarma ortamı doğrulanmadı |
+| Canlı operasyon | Gerçek alarm teslimatı ve bakım/yedek zamanlaması | Uzak CI ilk teslimde geçti. Canlı alarm, saklama/RPO/RTO ve canlı kurtarma ortamı doğrulanmadı |
 
 Dosya içeriğini düzenleme ilk kapsamın dışındadır. Çöp kutusu/geri alma, Office içeriği render etme ve ek paylaşım modelleri de bu sürümün uygulanmış özellikleri olarak gösterilmemelidir. Önizleme desteklenen görsel/PDF türleriyle sınırlıdır; diğer dosyalar indirilebilir.
 
@@ -103,13 +94,15 @@ Dosya içeriğini düzenleme ilk kapsamın dışındadır. Çöp kutusu/geri alm
 
 Tasarımla karşılaştırmada bulunan işlem geçmişi API/ekranı ve aktif indirme erişim iptali tamamlandı. Kontrol aralığı ve doğrulama beklemesine ağ/event-loop gecikmesi eklenebilir; önceden gönderilmiş baytlar geri alınamaz. Genel `/jobs/:jobId` tasarım rotasının yerini arşive özgü `/archives/:id` durum sorgusu aldı.
 
-[PDF karşılaştırmasındaki](pdf-ister-karsilastirmasi.md) iki kod eksiği kapatıldı; sırada gerçek tarayıcı kabulü ve iki bağımsız repository teslimi var.
+[PDF karşılaştırmasındaki](pdf-ister-karsilastirmasi.md) iki kod eksiği kapatıldı; iki bağımsız repository teslim edildi; sırada yayın ve kalan tarayıcı kabulü var.
 
 1. [Canlı kurulum listesi](canli-kurulum-gerekenler.md) üzerinden domain, sunucu, MongoDB, Google, private bucket ve SMTP hesaplarını hazırlamak.
 2. Gerçek tarayıcıda rol/hesap değişimi, davet, yükleme, indirme, mobil/klavye ve erişilebilirlik kabulünü çalıştırmak. Büyük ZIP'in son Blob indirmesini hedef cihazlarda ölçmek.
 3. HTTPS altında gerçek sağlayıcı smoke testleri, alarm teslimatı ve [yedek/restore planını](yedekleme-ve-operasyon.md) tamamlamak.
 4. İki upstream bildirimi düzeltme sürümü yayımlandığında güvenli güncelleyip yeniden taramak; derleme araçlarını kullanıcı girdisi alan genel servis olarak açmamak.
 
-[Backend kurulum](../google-drive-clone-backend/README.md) · [Frontend kurulum](../google-drive-clone-frontend/README.md) · [API sözleşmesi](../google-drive-clone-frontend/docs/api-contract.md)
+[Backend kurulum](https://github.com/ahmetkocdeveci/google-drive-clone-backend/blob/main/README.md) · [Frontend kurulum](https://github.com/ahmetkocdeveci/google-drive-clone-frontend/blob/main/README.md) · [API sözleşmesi](https://github.com/ahmetkocdeveci/google-drive-clone-frontend/blob/main/docs/api-contract.md)
 
 Teknik dayanaklar: [Google e-posta otoritesi](https://developers.google.com/identity/sign-in/web/backend-auth), [AWS SDK checksum davranışı](https://docs.aws.amazon.com/sdk-for-javascript/v3/developer-guide/s3-checksums.html), [S3 presigner başlıkları](https://docs.aws.amazon.com/AWSJavaScriptSDK/v3/latest/Package/-aws-sdk-s3-request-presigner/).
+
+23 Ekim son yerel doğrulaması: Nuxt 4.6.2 üretim derlemesi, E2E kaynak tip kontrolü ve 21 manifest runtime sınırı kontrolü geçti; node-forge/braces üretim çıktısında bulunmadı. İlk derleme Windows EPERM nedeniyle durdu, aynı derleme gerekli izinlerle başarılı oldu. Outbox 0 pending/0 sending/0 failed iken backend yeni kodla yeniden başlatıldı; Atlas /health ok ve frontend 4179 dinleme kontrolü başarılı. Bu kontroller frontend sayfasını açma veya yeni Google akışının manuel kabulü değildir.

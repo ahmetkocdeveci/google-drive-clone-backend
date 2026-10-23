@@ -1,16 +1,16 @@
-# Bağımlılık güvenlik durumu — 21 Ekim 2026
+# Bağımlılık güvenlik durumu — 23 Ekim 2026
 
-Backend `pnpm audit --prod` kontrolünde bilinen açık bildirmedi. Frontend kaynak paketinde aynı komut **iki high bulgu** bildirdi; “sıfır açık” sonucu yoktur. Resmi npm kayıtlarında o gün `node-forge`1.4.0 ve `braces`3.0.3 en yeni sürümlerdi; aşağıdaki resmi bildirimler yayımlanmış düzeltme belirtmiyor.
+Backend `pnpm audit --prod` sonucu 0 bulgudur. Frontend Nuxt 4.6.1 taramasında 2 high ve 3 moderate paket bulgusu vardı. Nuxt 4.6.2 güncellemesinden sonra aynı tarama **2 high, 0 moderate, 0 critical** bildirdi. Üç moderate paket bulgusu aşağıdaki iki Nuxt bildirimine aitti; node-forge ve braces açıkları giderilmiş sayılmaz.
 
-| Paket / yol | Bildirim | Durum |
-| --- | --- | --- |
-| `nuxt → nitropack → listhen → node-forge` | RSA imza doğrulamasında ASN.1 öğe sayısı kontrolü | [GHSA-86w9-cpqp-85rv](https://github.com/advisories/GHSA-86w9-cpqp-85rv); etkilenmiş sürüm<=1.4.0, yayımlanmış düzeltme yok |
-| `nuxt → nitropack → globby → micromatch → braces` | Çok derin brace deseninde recursive walker stack taşması | [GHSA-vfj7-8cjw-p6xm](https://github.com/advisories/GHSA-vfj7-8cjw-p6xm); etkilenmiş sürüm<=3.0.3, yayımlanmış düzeltme yok |
+| Paket / bildirim | Güncel durum |
+| --- | --- |
+| Nuxt / `@nuxt/nitro-server`: büyük-küçük harf değişimiyle route rules atlama | [GHSA-vjh5-4x84-xrqp](https://github.com/advisories/GHSA-vjh5-4x84-xrqp); 4.6.2 düzeltmesi uygulandı |
+| Nuxt: server islands `useHeadSafe` sanitizasyonu | [GHSA-xfq5-w38q-pc2x](https://github.com/advisories/GHSA-xfq5-w38q-pc2x); 4.6.2 düzeltmesi uygulandı |
+| `nuxt → nitropack → listhen → node-forge`: RSA imza doğrulamasında ASN.1 kontrolü | [GHSA-86w9-cpqp-85rv](https://github.com/advisories/GHSA-86w9-cpqp-85rv); <=1.4.0 etkilenmiş, 23 Ekim taramasında yayımlanmış yama bildirilmedi |
+| `nuxt → nitropack → globby → micromatch → braces`: derin desenlerde stack taşması | [GHSA-vfj7-8cjw-p6xm](https://github.com/advisories/GHSA-vfj7-8cjw-p6xm); <=3.0.3 etkilenmiş, 23 Ekim taramasında yayımlanmış yama bildirilmedi |
 
-Nuxt, kaynak `package.json` içinde dependency olduğu için araç zinciri `--prod` taramasına da giriyor. Bu sonucu bağımlılıkları başka kategoriye taşıyarak veya bildirimleri susturarak gizlemedim; upstream paketleri yamalanmış saymadım.
+Nuxt kaynak dependency olduğu için derleme/geliştirme araçları da `--prod` taramasına girer. Bulgular dependency kategorisi değiştirilerek veya audit bastırılarak gizlenmedi. Uyumluluğu belirsiz override ya da yerel kriptografi yaması uygulanmadı.
 
-Üretim Dockerfile'ı yalnız derlenen `.output` dizinini taşır. Gerçek imajdaki `/app` paket manifestleri incelendi; iki paket bulunmadı. Derleme sonrası `pnpm check:runtime`, runtime manifestlerinde bu adlar veya onlara dependency kaydı bulunursa hata verir; CI ve Docker build'e bağlandı. Bu envanter kontrolü genel bir “tüm zafiyetler yok” kanıtı veya bağımsız kriptografik denetim değildir.
+Üretim Dockerfile'ı yalnız derlenen `.output` dizinini taşır. `pnpm check:runtime`, `.output/server` içindeki manifestleri ve dependency/optionalDependency kayıtlarını tarayıp node-forge veya braces bulursa derlemeyi durdurur. CI ve Docker derlemesi bu kontrolü çalıştırır. İlk teslimin uzak frontend CI ve Docker kontrolü başarılıydı; yeni 4.6.2 çıktısında da 21 manifest kontrolü geçti; iki paket bulunmadı. Bu envanter kontrolü genel bir güvenlik denetimi veya bütün açıkların yokluğu kanıtı değildir.
 
-Uygulama kullanıcı aramasını bu glob araçlarına göndermiyor; dosya işlemleri kendi API/MongoDB katmanından geçiyor. Geliştirme sunucusu yalnız127.0.0.1/HTTP dinler; üretim TLS'i Caddy sonlandırır. Araçların build/dev yollarında kullanılması ve runtime envanterinde bulunmaması, üretimde bu iki paketin çalıştırılmadığı değerlendirmesinin dayanağıdır; kaynak araç zincirindeki risk tamamen giderildiği iddia edilmez.
-
-Takip: resmi düzeltme veya bu bağımlılıkları kaldıran uyumlu upstream sürüm geldiğinde güncelle, frozen lockfile ile derle,101 backend/42 frontend regresyonunu ve artifact kontrolünü çalıştır. Bu çalışmada sırf sürüm numarası daha yeni diye uyumluluğu belirsiz override veya yerel kriptografi yaması yapılmadı. Derleme CI'ı salt okunur repo yetkisi ve sınırlı çalışma süresiyle hazırlanmıştır; canlı kullanıcı girdisini bir glob/sertifika yardımcı aracına bağlayan değişiklikte değerlendirme yenilenmelidir.
+Uygulama kullanıcı aramasını bu glob araçlarına iletmez; dosya işlemleri kendi API/MongoDB katmanından geçer. Geliştirme sunucusu yalnız loopback üzerinde dinler. Build/dev bağımlılıkları bakım kapsamında kalır; resmi yama veya bu bağımlılıkları kaldıran uyumlu sürüm geldiğinde frozen lockfile ile unit/tip/derleme/runtime ve CI kontrolleri yeniden yapılmalıdır. Canlı TLS/gateway kurulumu henüz tamamlanmadı.

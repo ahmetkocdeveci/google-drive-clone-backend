@@ -1,8 +1,8 @@
 # PDF isterleri ile uygulamanın karşılaştırılması
 
-Kontrol: 22 Ekim 2026. Kaynak: `C:/Users/ahmet/Desktop/Ahmet_Kodeveci_-_6.pdf`, 2 Ekim 2026 tarihli dört sayfa. Metin ve dört sayfanın görseli birlikte incelendi. PDF, proje kapsamını değerlendirmek için kullanıldı; içeriği ayrıca bir yayınlama, hesap açma veya dış servise veri gönderme izni olarak yorumlanmadı.
+İlk PDF kontrolü: 22 Ekim 2026; durum güncellemesi: 23 Ekim 2026. Kaynak: `C:/Users/ahmet/Desktop/Ahmet_Kodeveci_-_6.pdf`, 2 Ekim 2026 tarihli dört sayfa. Metin ve dört sayfanın görseli birlikte incelendi. PDF, proje kapsamını değerlendirmek için kullanıldı; içeriği ayrıca bir yayınlama, hesap açma veya dış servise veri gönderme izni olarak yorumlanmadı.
 
-**Sonuç: PDF'nin tamamı henüz karşılanmıyor.** Son bulunan iki kod eksiği22 Ekim'de kapatıldı: klasör seçme/sürükleme ile hiyerarşik upload ve dosya ayrıntısında klasör yolu/konuma gitme.66 frontend ve2 gerçek API/MongoDB entegrasyon testi geçti. Gerçek Atlas ve özel R2 bağlantıları ayrıca doğrulandı. Ayrı repository teslimi, API/frontend deployment, gerçek Google/tarayıcı kabulü ve kişisel kaynak tamamlama kayıtları hâlâ açık.
+**Sonuç: PDF'nin tamamı henüz karşılanmıyor.** Son bulunan iki kod eksiği22 Ekim'de kapatıldı: klasör seçme/sürükleme ile hiyerarşik upload ve dosya ayrıntısında klasör yolu/konuma gitme.66 frontend ve2 gerçek API/MongoDB entegrasyon testi geçti. Gerçek Atlas ve özel R2 bağlantıları ayrıca doğrulandı. İki ayrı private repository teslimi ve ilk uzak CI kabulü tamamlandı. Kullanıcı yerelde Google, PDF, workspace, davet ve rol kontrollerini doğruladı. API/frontend canlı deployment, kalan tarayıcı/cihaz kabulü ve kişisel kaynak tamamlama kayıtları hâlâ açık.
 
 Durumlar: **Kod mevcut** = uygulama ve ilgili kaynak/test mevcut; canlı/tarayıcı kabulünü tek başına kanıtlamaz. **Kısmi** = isterin bir bölümü karşılanıyor. **Eksik** = gerekli sonuç henüz yok. **Doğrulanmadı** = tamamlandı diyebilmek için yeterli kanıt yok. İlk karşılaştırma sonrasında iki özellik uygulandı ve aşağıdaki satırlar yeni kanıtlara göre güncellendi. Tarayıcı test kaynakları yazıldı/tip kontrolü yapıldı; tarayıcıda çalıştırılmadı.
 
@@ -10,18 +10,18 @@ Durumlar: **Kod mevcut** = uygulama ve ilgili kaynak/test mevcut; canlı/tarayı
 
 | ID | İster | Durum | Kanıt / kalan iş |
 | --- | --- | --- | --- |
-| T01 | Frontend/backend ayrı repository | Eksik | İki bağımsız paket klasörü var, ikisinde de kendi `.git` kaydı yok; üst starter repository içinde duruyorlar. Ayrı Git geçmişi/remote ve teslim bağlantısı hazırlanmalı |
-| T02 | Nuxt frontend | Kod mevcut | [Frontend package.json](../google-drive-clone-frontend/package.json), Nuxt sayfaları; 22 Ekim tip kontrolü ve üretim derlemesi başarılı |
+| T01 | Frontend/backend ayrı repository | Tamamlandı | İki bağımsız Git kökü ve private remote oluşturuldu, main dallarına push edildi; [teslim kaydı](github-teslim-durumu.md) |
+| T02 | Nuxt frontend | Kod mevcut | [Frontend package.json](https://github.com/ahmetkocdeveci/google-drive-clone-frontend/blob/main/package.json), Nuxt sayfaları; 22 Ekim tip kontrolü ve üretim derlemesi başarılı |
 | T03 | Frontend/backend ayrı deployment | Kısmi | Ayrı Dockerfile ve [compose servisleri](../deploy/compose.yaml) var; çalışan canlı API/frontend deployment'ı yok |
-| T04 | `google-drive-clone-backend` / `google-drive-clone-frontend` isimleri | Kısmi | Yerel klasör/paket isimleri uygun; bu adlarla iki ayrı repository henüz teslim edilmedi |
-| W01 | Multi-tenant mimari | Kod mevcut | [Tenant politikası](../google-drive-clone-backend/src/tenant.mjs), [modeller](../google-drive-clone-backend/src/models.mjs); workspace kapsamlı sorgular |
-| W02 | Kullanıcının bir veya birden fazla workspace'i | Kod mevcut | [Workspace API](../google-drive-clone-backend/src/workspaces.mjs), frontend liste/alan değiştirme, sayfalama |
-| W03 | Workspace oluşturanın otomatik Owner olması | Kod mevcut | Oluşturma transaction'ı ve [workspace testleri](../google-drive-clone-backend/tests/workspaces.test.mjs) |
+| T04 | `google-drive-clone-backend` / `google-drive-clone-frontend` isimleri | Tamamlandı | Kullanıcıya ait iki ayrı private repository bu adlarla teslim edildi |
+| W01 | Multi-tenant mimari | Kod mevcut | [Tenant politikası](https://github.com/ahmetkocdeveci/google-drive-clone-backend/blob/main/src/tenant.mjs), [modeller](https://github.com/ahmetkocdeveci/google-drive-clone-backend/blob/main/src/models.mjs); workspace kapsamlı sorgular |
+| W02 | Kullanıcının bir veya birden fazla workspace'i | Kod mevcut | [Workspace API](https://github.com/ahmetkocdeveci/google-drive-clone-backend/blob/main/src/workspaces.mjs), frontend liste/alan değiştirme, sayfalama |
+| W03 | Workspace oluşturanın otomatik Owner olması | Kod mevcut | Oluşturma transaction'ı ve [workspace testleri](https://github.com/ahmetkocdeveci/google-drive-clone-backend/blob/main/tests/workspaces.test.mjs) |
 | W04 | Owner tüm içerik, ayar ve üye işlemleri | Kod mevcut | Tenant izin tablosu; üyelik/rol/ayar API'leri, son Owner koruması; işlem geçmişi de eklendi |
 | W05 | Editor içerik görüntüleme/oluşturma/düzenleme/silme; yönetim yapamama | Kod mevcut | Metadata ad/konum düzenleme ve içerik CRUD izinleri. Dosyanın içeriğini düzenleme PDF'de kapsam dışı. Doğrudan API rol kontrolleri mevcut |
-| W06 | Viewer yalnız görüntüleme | Kod mevcut | Okuma/indirme var; yazma, upload, silme ve yönetim API'de reddedilir. [Dosya rol testleri](../google-drive-clone-backend/tests/files.test.mjs) |
-| W07 | Davet workspace'e bağlı ve e-posta üzerinden | Kod mevcut | Workspace/Invitation ilişkisi, Owner kontrolü, [mailer](../google-drive-clone-backend/src/mailer.mjs) |
-| W08 | Kayıtsız kullanıcıyı davet edebilme | Kod mevcut | Davet kullanıcı hesabını zorunlu tutmaz; kabul için eşleşen doğrulanmış hesap gerekir. Yerel mail teslimi testli; dış SMTP bekliyor |
+| W06 | Viewer yalnız görüntüleme | Kod mevcut | Okuma/indirme var; yazma, upload, silme ve yönetim API'de reddedilir. [Dosya rol testleri](https://github.com/ahmetkocdeveci/google-drive-clone-backend/blob/main/tests/files.test.mjs) |
+| W07 | Davet workspace'e bağlı ve e-posta üzerinden | Kod mevcut | Workspace/Invitation ilişkisi, Owner kontrolü, [mailer](https://github.com/ahmetkocdeveci/google-drive-clone-backend/blob/main/src/mailer.mjs) |
+| W08 | Kayıtsız kullanıcıyı davet edebilme | Kod mevcut / yerel kabul | Hesap olmadan davet; kabul için eşleşen doğrulanmış e-posta. İkinci hesapla Mailpit davet kabulü ve Gmail self-test doğrulandı; farklı alıcıya gerçek SMTP davet teslimi bekliyor |
 | W09 | Davette Editor/Viewer seçimi | Kod mevcut | Backend doğrulama ve üye ekranındaki rol seçimi; Owner davet rolü kabul edilmez |
 | W10 | UI ve doğrudan API'de yetki kontrolü | Kod mevcut | Üye/ayar/içerik endpoint'leri güncel üyeliği kontrol eder; 403/404 testleri var. UI rol yenilemesi22 Ekim'de düzeltildi |
 | W11 | Auth/authz/data access boyunca tenant sınırı | Kod mevcut | Workspace/parent/node kapsamı, transaction kilidi, immutable object key, doğrudan yabancı ID testleri. Bu kontrol bütün olası güvenlik hatalarının yokluğu garantisi değildir |
@@ -30,13 +30,13 @@ Durumlar: **Kod mevcut** = uygulama ve ilgili kaynak/test mevcut; canlı/tarayı
 
 | ID | İster | Durum | Kanıt / kalan iş |
 | --- | --- | --- | --- |
-| A01 | E-posta/şifre kayıt | Kod mevcut | [Auth API](../google-drive-clone-backend/src/auth.mjs), kayıt sayfası; yerel gerçek HTTP/MongoDB testi |
+| A01 | E-posta/şifre kayıt | Kod mevcut | [Auth API](https://github.com/ahmetkocdeveci/google-drive-clone-backend/blob/main/src/auth.mjs), kayıt sayfası; yerel gerçek HTTP/MongoDB testi |
 | A02 | E-posta/şifre giriş | Kod mevcut | Auth API, login; cookie ve gerçek frontend adaptör entegrasyonu |
-| A03 | Google ile giriş | Kısmi | OAuth/OIDC, PKCE, nonce/state, JWKS ve kontrollü sağlayıcı testleri var. Gerçek Google hesabı/callback/HTTPS akışı henüz doğrulanmadı |
+| A03 | Google ile giriş | Yerel manuel kabul — canlı HTTPS bekliyor | İki gerçek Google hesabıyla yerel giriş kullanıcı tarafından doğrulandı. Yeni davet dönüşü 28 hedefli auth testinde doğrulandı; bu düzeltmenin Google dönüşü manuel kabulü bekliyor |
 | A04 | Çıkış ve oturum yönetimi | Kod mevcut | Session hash, HttpOnly cookie, CSRF, süre ve logout; oturum yarışları ve aktif indirme erişim iptali testli |
-| D01 | Dosya yükleme | Kod mevcut | [İmzalı upload/finalize](../google-drive-clone-backend/src/files.mjs), gerçek bayt/kota testleri. Gerçek R2 adaptör upload/finalize/read testi de geçti; yayın ortamı ve browser kabulü bekliyor |
+| D01 | Dosya yükleme | Kod mevcut / yerel manuel kabul | İmzalı upload/finalize, gerçek bayt/kota ve R2 provider testleri başarılı; kullanıcı bir PDF yüklemeyi doğruladı. Canlı origin kabulü bekliyor |
 | D02 | Dosya indirme | Kod mevcut | Private dosya/Range, gerçek bayt eşleşmesi ve bağlantı iptali testleri |
-| D03 | Dosya görüntüleme/önizleme | Kısmi | [Ayrıntı bileşeni](../google-drive-clone-frontend/app/components/DriveFileDetail.vue) raster görseller ve PDF için önizleme sunar. Gerçek browser kabulü yok. Diğer türler yalnız indirilebilir; PDF dosya türlerini tek tek saymadığı için her türün önizlemesi tamamlandı denemez |
+| D03 | Dosya görüntüleme/önizleme | Kısmi / PDF yerel kabul | Raster görseller ve PDF.js canvas var; kullanıcı bir gerçek PDF önizlemesini doğruladı. Diğer türler indirilir; tüm cihaz/tür kabulü tamamlanmadı |
 | D04 | Dosya listeleme | Kod mevcut | Workspace/folder kapsamlı liste, sayfalama, arama/filtre/sıralama; API/adapter testleri |
 | D05 | Dosya bilgileri ve ilgili klasörünü gösterme | Kod mevcut — browser kabulü bekliyor | Ayrıntı paneli gerçek üst klasör yolunu/kökü gösterir, Klasöre git ile konuma götürür; arama/son kullanılanlardan bağımsız parentId çözümü ve geç kalan yanıt koruması testli |
 | K01 | Klasör oluşturma | Kod mevcut | `POST /folders`, UI klasör formu |
@@ -56,16 +56,16 @@ Dosya konumu kabul ölçütü: ayrıntılarda kök veya gerçek üst klasör yol
 
 | ID | İster | Durum | Kanıt / kalan iş |
 | --- | --- | --- | --- |
-| L01 | İki repository'yi ayrı oluşturma | Eksik | T01 ile aynı teslim açığı; ayrı klasör olması yeterli değil |
-| L02 | İkisinde anlaşılır README | Kod mevcut | [Backend README](../google-drive-clone-backend/README.md), [frontend README](../google-drive-clone-frontend/README.md) var. Ayrıştırma sonrasında komutlar, bağımsız CI ve kardeş klasör varsayımları yeniden doğrulanmalı |
-| L03 | Güncel ve kararlı paketler | Kısmi / son teslimde tekrar kontrol | Sürümler sabitlenmiş, tip/derleme testleri mevcut.21 Ekim taramasında iki Nuxt araç zinciri high bildirimi kaydedildi; son runtime kontrolünde bu paketler yok. Bu tur güncel registry taraması yapılmadı; bütün bağımlılıklar en güncel ve açıklar giderilmiş denemez |
+| L01 | İki repository'yi ayrı oluşturma | Tamamlandı | T01 ile aynı; bağımsız geçmiş/remote ve private görünürlük doğrulandı |
+| L02 | İkisinde anlaşılır README | Kod mevcut / ilk CI geçti | Bağımsız kurulum, kardeş repo bağlantıları ve ayrı CI/Docker bağlamları güncellendi; ilk uzak kontroller başarılı |
+| L03 | Güncel ve kararlı paketler | Kısmi / güvenlik takibi açık | Nuxt 4.6.2 güncellemesi sonrası 0 moderate/2 high frontend audit bulgusu var. İki upstream high için yama bildirilmedi; runtime sınırı derlemede denetlenir. Backend audit 0; [güvenlik kaydı](bagimlilik-guvenlik-durumu.md) |
 | L04 | API ve frontend deploy | Eksik | Paketleme/compose hazırlığı var; çalışan canlı ortam ve HTTPS doğrulaması yok |
-| L05 | Çalışan deployment + repository linklerini teslim | Eksik | Dört teslim bağlantısı (iki repo, API, frontend) hazır değil. Localhost adresleri teslim deployment'ı değildir |
-| L06 | Kayıt, giriş, Google, upload/download, görüntüleme ve ağaç için uçtan uca test | Kısmi | Gerçek API/MongoDB + frontend adaptör testleri var; klasör upload için nested bayt/boş klasör/Viewer reddi kontrolleri eklendi. Playwright kaynakları yazılı ve tip kontrolü başarılı, tarayıcıda çalıştırılmadı. Gerçek Google ve preview DOM kabulü bekliyor |
+| L05 | Çalışan deployment + repository linklerini teslim | Kısmi | İki private repo bağlantısı hazır; API ve frontend canlı deployment adresleri henüz yok. Localhost yayın kabulü değildir |
+| L06 | Kayıt, giriş, Google, upload/download, görüntüleme ve ağaç için uçtan uca test | Kısmi | API/MongoDB ve adapter entegrasyonları; kullanıcı Google/PDF/davet/rol kabulü mevcut. Otomatik Playwright/axe, kalan ağaç/mobil/klavye kabulü çalıştırılmadı |
 | M01 | Önce kullanıcı/dosya/klasör ilişkileri ve ağaç tasarımı | Belge mevcut | [Mimari](google-drive-multi-tenant-mimari.md), `Workspace/Membership/DriveNode.parentId`; tasarım belgesi var. Geçmiş çalışma sırası bu tur yeniden ispatlanmadı |
 | M02 | Saklama yeri ve metadata tasarımı | Belge/kod mevcut | MongoDB metadata, private object key ve staging/sealed yaşam döngüsü |
 | M03 | Veri modeli ve API sözleşmesi | Belge/kod mevcut | Modeller ve API sözleşmesi var; klasör upload mevcut create-folder/upload/finalize çağrılarını bileştirir. Konum için scoped getNode kullanılır; yeni yetkisiz endpoint eklenmedi |
-| M04 | Bucket servisi kullanma | Gerçek R2 bağlantısı doğrulandı — deployment kabulü bekliyor | Özel R2 bucket ve uygulama S3 adaptörüyle gerçek imzalı PUT/GET/Range, immutable finalize, ZIP ve temizlik geçti. Yerel origin CORS preflight204 doğrulandı; gerçek browser ve yayın origin kabulü bekliyor |
+| M04 | Bucket servisi kullanma | Gerçek R2 ve yerel PDF kabulü — canlı origin bekliyor | Private R2 PUT/GET/Range/finalize/ZIP/temizlik ve CORS testleri geçti. Kullanıcı PDF yükleme/önizleme/indirmeyi doğruladı; yayın origin kabulü bekliyor |
 
 ## Ders ve kaynaklar — PDF sayfa 3–4
 
@@ -86,7 +86,7 @@ Not dosyası hazırlamamız, Ahmet'in bütün dersleri izleyip kavramları öğr
 ## Öncelikli devam sırası
 
 1. **Klasör upload** ve **dosyanın klasör konumu** kodları ve API/adapter kontrolleri tamamlandı. Yazılan browser senaryosunu izin verilen ortamda çalıştır; directory seçme/drop ve boş klasör desteğini hedef browserlarda kabul et.
-2. İki paketi gerçekten ayrı repository teslimine hazırla; bağımsız kurulum/CI/Docker bağlamlarını doğrula. Uzak repo oluşturma/push işlemini mevcut kullanıcı yetkisi kapsamında ayrıca ele al; bu incelemede yayın yapılmadı.
+2. Tamamlandı: iki bağımsız private repository, ayrı README/CI ve ilk uzak Docker kontrolleri. Sonraki değişikliklerde bağımsız CI sonuçlarını izlemeyi sürdür.
 3. [Canlı kurulum listesindeki](canli-kurulum-gerekenler.md) hesaplarla bucket, Google OAuth, SMTP, MongoDB, API/frontend deployment ve HTTPS akışlarını tamamla.
 4. Gerçek browser/mobil/klavye/preview/Google/ağaç kabulü; bağımlılık taraması; çalışan dört teslim bağlantısı.
 5. Dersler ve Data Modeling'in bütün bölümleri için gerçek kişisel çalışma kayıtlarını tamamla.
