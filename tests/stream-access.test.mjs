@@ -127,9 +127,29 @@ test('monitor deadline fails closed and releases capacity if the database does n
   try{
     const session=await f.h.models.Session.findOne({userId:f.viewer.user.id,revokedAt:null})
     f.h.models.Session.collection.findOne=()=>new Promise(()=>{})
-    const input={models:f.h.models,req:{authSession:session,auth:{user:{_id:f.viewer.user.id}}},workspaceId:f.workspace.id,nodeId:f.id,nodeKind:'file',objectKey:f.key,onRevoke(){},validationTimeoutMs:30}
-    for(let index=0;index<6;index++)await assert.rejects(within(createStreamAccessMonitor(input).start(),1000),error=>error.code==='STREAM_ACCESS_REVOKED')
+    const input={models:f.h.models,req:{authSession:session,auth:{user:{_id:f.viewer.user.id}}},workspaceId:f.workspace.id,nodeId:f.id,nodeKind:'file',objectKey:f.key,onRevoke(){},validationTimeoutMs:30,initialValidationTimeoutMs:30}
+    for(let index=0;index<6;index++)await assert.rejects(within(createStreamAccessMonitor(input).start(),1000),error=>error.status===503 && error.code==='STREAM_CHECK_UNAVAILABLE')
   }finally{f.h.models.Session.collection.findOne=original;await f.close()}
+})
+
+test('a slow first authority check waits before granting access while later checks keep their short deadline',async()=>{
+  const f=await fixture('streamcoldstart')
+  const original=f.h.models.Session.collection.findOne
+  let monitor
+  try{
+    const session=await f.h.models.Session.findOne({userId:f.viewer.user.id,revokedAt:null})
+    f.h.models.Session.collection.findOne=async function(...args){await delay(100);return original.apply(this,args)}
+    let revokedWith,started=false
+    monitor=createStreamAccessMonitor({models:f.h.models,req:{authSession:session,auth:{user:{_id:f.viewer.user.id}}},workspaceId:f.workspace.id,nodeId:f.id,nodeKind:'file',objectKey:f.key,intervalMs:10,validationTimeoutMs:30,onRevoke(error){revokedWith=error}})
+    const start=monitor.start().then(()=>{started=true})
+    await delay(50)
+    assert.equal(started,false,'initial authority must finish before a stream may start')
+    await within(start)
+    assert.equal(started,true)
+    await until(()=>Boolean(revokedWith))
+    assert.equal(revokedWith.status,503)
+    assert.equal(revokedWith.code,'STREAM_CHECK_UNAVAILABLE')
+  }finally{monitor?.stop();f.h.models.Session.collection.findOne=original;await f.close()}
 })
 
 test('authority checks support an active file at the existing 64-level tree limit',async()=>{

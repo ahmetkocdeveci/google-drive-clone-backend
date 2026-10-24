@@ -2,10 +2,11 @@ import {HttpError} from './errors.mjs'
 import {permissions} from './tenant.mjs'
 
 const revoked=()=>new HttpError(403,'STREAM_ACCESS_REVOKED','İndirme erişimi artık geçerli değil.')
+const unavailable=()=>new HttpError(503,'STREAM_CHECK_UNAVAILABLE','İndirme erişimi şu anda doğrulanamıyor. Biraz sonra tekrar dene.')
 const activeByModels=new WeakMap()
 
 /** Re-check long-lived response authority using fresh, tenant-scoped records. */
-export function createStreamAccessMonitor({models,req,workspaceId,nodeId,nodeKind,objectKey,contentVersion,validateExtra,signal,onRevoke,intervalMs=250,validationTimeoutMs=1000}){
+export function createStreamAccessMonitor({models,req,workspaceId,nodeId,nodeKind,objectKey,contentVersion,validateExtra,signal,onRevoke,intervalMs=250,validationTimeoutMs=1000,initialValidationTimeoutMs=5000}){
   const sessionId=req.authSession?._id,userId=req.auth?.user?._id,tokenHash=req.authSession?.tokenHash
   const active=activeByModels.get(models) || {total:0,users:new Map()}
   activeByModels.set(models,active)
@@ -19,13 +20,13 @@ export function createStreamAccessMonitor({models,req,workspaceId,nodeId,nodeKin
   signal?.addEventListener('abort',stop,{once:true})
   if(signal?.aborted)stop()
 
-  async function validate(){
+  async function validate(timeoutMs){
     signal?.throwIfAborted()
     if(stopped)throw revoked()
     const probe=new AbortController();currentProbe=probe
     let deadline
-    const timeout=new Promise((_,reject)=>{deadline=setTimeout(()=>{probe.abort();reject(revoked())},validationTimeoutMs)})
-    const options={signal:probe.signal,maxTimeMS:validationTimeoutMs}
+    const timeout=new Promise((_,reject)=>{deadline=setTimeout(()=>{probe.abort();reject(unavailable())},timeoutMs)})
+    const options={signal:probe.signal,maxTimeMS:timeoutMs}
     const check=async()=>{
       if(!sessionId || !userId || !tokenHash)throw revoked()
       const lineage=models.DriveNode.collection.aggregate([
@@ -65,7 +66,7 @@ export function createStreamAccessMonitor({models,req,workspaceId,nodeId,nodeKin
   function schedule(){
     if(stopped)return
     timer=setTimeout(async()=>{
-      try{await validate();schedule()}
+      try{await validate(validationTimeoutMs);schedule()}
       catch(error){if(!stopped){stop();onRevoke(error)}}
     },intervalMs)
     timer.unref?.()
@@ -76,7 +77,9 @@ export function createStreamAccessMonitor({models,req,workspaceId,nodeId,nodeKin
       if(reserved)throw new Error('Stream monitor already started')
       if(active.total>=32 || (active.users.get(userId) || 0)>=4)throw new HttpError(503,'STREAM_BUSY','İndirme servisi yoğun. Açık indirmeler tamamlandıktan sonra tekrar dene.')
       reserved=true;active.total++;active.users.set(userId,(active.users.get(userId) || 0)+1)
-      await validate();schedule()
+      // No bytes are released before this first check. Allow cold database reads
+      // longer than the short deadline used to revoke an already-open stream.
+      await validate(initialValidationTimeoutMs);schedule()
     }catch(error){stop();throw error}},
     stop,
   }
