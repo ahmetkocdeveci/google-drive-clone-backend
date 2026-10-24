@@ -1,4 +1,6 @@
-# Canlı kurulum için gerekenler — 20 Ekim 2026
+# Canlı kurulum için gerekenler — tarihsel kurulum notları
+
+> Bu dosya 20–23 Ekim kurulum sürecinin tarihli notlarını korur; aşağıdaki “bekliyor” ifadeleri o tarihe aittir. 24 Ekim itibarıyla Pages frontend, Northflank API/private MongoDB, R2, Google callback ve SMTP kurulmuştur. Güncel kurulum için [README](../README.md), kabul ve kalan operasyon sınırları için [teslim kontrolü](release-checklist.md) esas alınmalıdır.
 
 **23 Ekim güncel durum:** Google girişinden sonra daveti yeniden yapıştırma eksiği kodda kapatıldı. Session/state'e bağlı şifreli bağlam, tek kullanımlık callback ve açık davet kabulü eklendi; 28 hedefli backend auth ve 73 frontend testi geçti. Nuxt 4.6.2 güncellemesi moderate audit bulgularını 3'ten 0'a indirdi; iki upstream high araç zinciri bulgusu izleniyor. Yeni akışın manuel Google dönüşü kabulü ve canlı frontend/API yayını bekliyor. İki bağımsız private repository teslimi ve ilk uzak CI kabulü tamamlandı. Aşağıdaki tarihli kayıtlar geçmiş doğrulama kapsamını gösterir; güncel açık işler için kalite raporu esas alınmalıdır.
 
