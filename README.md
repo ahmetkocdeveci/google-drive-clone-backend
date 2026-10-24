@@ -13,7 +13,7 @@
 | Frontend deposu | [google-drive-clone-frontend](https://github.com/ahmetkocdeveci/google-drive-clone-frontend) |
 | Otomatik kontroller | [Backend checks](https://github.com/ahmetkocdeveci/google-drive-clone-backend/actions/workflows/ci.yml) |
 
-Depolar özeldir; kaynak koduna erişim için depo yetkisi gerekir. API'nin korumalı yollarına doğrudan erişimde `403 EDGE_PROXY_REQUIRED` beklenir. Uygulama bu yollara Cloudflare Pages üzerindeki aynı origin `/api/v1` gateway'i üzerinden erişir. Gateway doğrulaması kullanıcı girişinin ve rol kontrolünün yerine geçmez.
+Depolar özeldir; kaynak koduna erişim için depo yetkisi gerekir. API'nin korumalı yollarına doğrudan erişimde `403 EDGE_REQUIRED` beklenir. Uygulama bu yollara Cloudflare Pages üzerindeki aynı origin `/api/v1` gateway'i üzerinden erişir. Gateway doğrulaması kullanıcı girişinin ve rol kontrolünün yerine geçmez.
 
 ## İşlevler ve roller
 
