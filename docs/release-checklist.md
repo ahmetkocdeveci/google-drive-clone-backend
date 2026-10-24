@@ -21,5 +21,5 @@ Backend CI gerçek MongoDB, testler, deployment şablonu, güvenlik taraması ve
 - Dosya içeriği düzenleme kapsam dışıdır; PDF/raster önizlemesi vardır, Office dosyaları indirilir.
 - Ücretsiz kaynak kotaları, dosya/alan/ZIP sınırları README'de belirtilmiştir.
 - Haftalık MongoDB snapshot ve manuel şifreli R2 yedeği vardır. Otomatik R2 ikinci konum kopyası, ortak zamana tam kurtarma ve gerçek alarm teslimi ayrıca operasyon işidir.
-- Frontend araç zincirindeki yamasız node-forge bildirimi ve runtime dışlama kontrolü frontend güvenlik kaydında açıkça belgelenmiştir.
+- Frontend'in node-forge bağımlılığı kullanılmayan sertifika üretimi kaldırılarak ağacından çıkarılmıştır; tüm audit temizdir, istisna yoktur. Exact-version listener yaması ve native TLS testleri frontend güvenlik kaydında belgelenmiştir.
 - Repo davetleri ve kişisel ders/not teslimi depo sahibi tarafından tamamlanır; bu belge onlar adına tamamlandı iddiası içermez.

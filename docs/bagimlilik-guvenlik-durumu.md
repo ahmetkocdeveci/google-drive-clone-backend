@@ -4,4 +4,4 @@
 
 Bu anlık sonuç uygulamanın bütün olası güvenlik sorunlarından arınmış olduğu anlamına gelmez. Scrypt/session/CSRF/OAuth, tenant ve stream kontrolleri ayrıca test edilir; sırlar kaynak depoya alınmaz.
 
-Frontend ayrı bağımlılık ağacına sahiptir. Yamasız node-forge araç zinciri bildirimi, runtime dışlama ve dar kapsamlı audit istisnası [frontend güvenlik kaydındadır](https://github.com/ahmetkocdeveci/google-drive-clone-frontend/blob/main/docs/bagimlilik-guvenlik-durumu.md).
+Frontend ayrı bağımlılık ağacına sahiptir. Node-forge, listhen'in kullanılmayan otomatik geliştirme sertifikası üretimi kaldırılarak ağacından çıkarılmıştır. Native TLS ve PEM/PFX desteği gerçek testlerle korunur; tüm frontend audit sonucu 0, istisna listesi yoktur. Sürüme bağlı yama ve bakım koşulları [frontend güvenlik kaydındadır](https://github.com/ahmetkocdeveci/google-drive-clone-frontend/blob/main/docs/bagimlilik-guvenlik-durumu.md).

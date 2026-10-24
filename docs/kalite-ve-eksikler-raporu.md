@@ -12,7 +12,7 @@ Güncelleme: **24 Ekim 2026**. Önceki geliştirme kayıtlarının yerine günce
 ## Sınırlar
 
 - Dosya içeriğini uygulama içinde düzenlemek kapsam dışıdır. Office dosyaları indirilir; PDF ve raster görsel önizlenir. Parolalı/bozuk PDF için indirme sunulur.
-- Bağımlılık taraması kalıcı sıfır açık garantisi değildir. Backend taramasında bulgu yok; frontend'deki yamasız araç zinciri bildirimi kendi güvenlik kaydında belirtilmiştir.
+- Bağımlılık taraması kalıcı sıfır açık garantisi değildir. Backend taramasında bulgu yok; frontend node-forge bağımlılığını kaldırmıştır ve tüm audit sonucu 0'dır. Listener yaması ve bakım koşulları kendi güvenlik kaydındadır.
 - Ücretsiz tek instance kurulumunda SLA/yüksek erişilebilirlik garantisi yoktur. Dosya/alan/ZIP sınırları [README](../README.md) içindedir.
 - Haftalık MongoDB snapshot ve ayrı manuel R2 yedeği vardır. Düzenli R2 ikinci konum yedeği, ortak zamana kurtarma tatbikatı ve gerçek alarm teslimi sonraki operasyon işleridir.
 - Repo daveti ve ders/kişisel notlar depo sahibine aittir. Otomatik test veya hazır belge, kişinin öğrenme kaydının yerine geçmez.

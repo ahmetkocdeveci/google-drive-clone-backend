@@ -126,6 +126,8 @@ Parolalar scrypt ile hash'lenir; oturum ve bağlantı tokenlarının yalnız has
 
 [API sözleşmesi](docs/api-contract.md) · [Teslim kontrolü](docs/release-checklist.md)
 
+Kod üzerinden anlatım için [ayrıntılı teknik sunum rehberi](docs/teknik-sunum-rehberi.md) ve [kısa konuşma notları](docs/sunum-konusma-notlari.md): teknoloji seçimleri, veri modeli, güvenlik, dosya yaşam döngüsü, kod haritası ve soru-cevaplar.
+
 ## Sınırlar ve yedekleme
 
 - Dosya **25 MiB**, alan **5 GiB**, klasör yolu **64 seviye**.
